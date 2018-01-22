@@ -290,6 +290,8 @@ function QueryViewCtrl(
         id: $scope.query.id,
         data_source_id: $scope.query.data_source_id,
         latest_query_data_id: null,
+      }, (updatedQuery) => {
+        $scope.query.version = updatedQuery.version;
       });
     }
 
@@ -338,7 +340,14 @@ function QueryViewCtrl(
     }
   });
 
-  $scope.openVisualizationEditor = (visualization) => {
+  function getVisualization(visId) {
+    // eslint-disable-next-line eqeqeq
+    return find($scope.query.visualizations, item => item.id == visId);
+  }
+
+  $scope.openVisualizationEditor = (visId) => {
+    const visualization = getVisualization(visId);
+
     function openModal() {
       $uibModal.open({
         windowClass: 'modal-xl',
@@ -383,7 +392,8 @@ function QueryViewCtrl(
     });
   };
 
-  $scope.showEmbedDialog = (query, visualization) => {
+  $scope.showEmbedDialog = (query, visId) => {
+    const visualization = getVisualization(visId);
     $uibModal.open({
       component: 'embedCodeDialog',
       resolve: {
@@ -422,6 +432,7 @@ export default function init(ngModule) {
   return {
     '/queries/:queryId': {
       template,
+      layout: 'fixed',
       controller: 'QueryViewCtrl',
       reloadOnSearch: false,
       resolve: {
